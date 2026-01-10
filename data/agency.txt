@@ -1,0 +1,2 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_email
+01,"Dopravní podnik města Olomouce, a.s.",http://www.dpmo.cz,Europe/Prague,cs,+420585533111,,dpmo@dpmo.cz
