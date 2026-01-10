@@ -1,4 +1,6 @@
-streamlit run board_web.py &
+pip3 install streamlit
+
+streamlit run board_web.py --server.headless true &
 
 sleep 5
 
