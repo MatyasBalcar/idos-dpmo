@@ -3,7 +3,7 @@
 ```
 streamlit run board_web.py
 ```
-- run this to compile
+- or run this to compile
 ```
 chmod +x start_board.sh
 ```
