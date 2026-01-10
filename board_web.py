@@ -69,7 +69,7 @@ def get_scheduler():
 
 scheduler = get_scheduler()
 
-st.title(f"🚉 {STATION_NAME}")
+st.title(f"{STATION_NAME}")
 
 time_placeholder = st.empty()
 table_placeholder = st.empty()
