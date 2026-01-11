@@ -93,14 +93,13 @@ class TramScheduler:
         try:
             query_dt = datetime.strptime(query_datetime_str, '%Y-%m-%d %H:%M:%S')
         except ValueError:
-            return "Error: Date format must be YYYY-MM-DD HH:MM:SS"
+            return "Error: Date format must be YYYY-MM-DD HH:MM:SS", None
 
         query_time_str = query_dt.strftime('%H:%M:%S')
 
         matching_stops = self.stops[self.stops['stop_name'].str.contains(station_name, case=False, na=False)]
         if matching_stops.empty:
-            return f"Error: No station found matching '{station_name}'"
-
+            return f"Error: No station found matching '{station_name}'", None
 
         str_name = matching_stops['stop_name'].iloc[0]
 
@@ -111,21 +110,11 @@ class TramScheduler:
         fetch_limit = None if distinct else n
 
         df_today = self._fetch_departures(target_stop_ids, active_services_today, query_time_str, limit=fetch_limit)
-
         if distinct and not df_today.empty:
             df_today = df_today.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
 
-        # TEMP solution
-        if df_today.empty:
-            return f"Error: No departures found for '{station_name}'", str_name
-        condition = (
-                (df_today['trip_headsign'] == 'Hlavní nádraží') &
-                (df_today['route_short_name'].astype(str).isin(['3', '5']))
-        )
-
-        df_today = df_today[~condition]
-
         results_collected = len(df_today)
+
         results_needed = n - results_collected
 
         df_tomorrow = pd.DataFrame()
@@ -139,14 +128,20 @@ class TramScheduler:
 
             if distinct and not df_tomorrow.empty:
                 df_tomorrow = df_tomorrow.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
-
         combined_df = pd.concat([df_today, df_tomorrow], ignore_index=True)
 
         if distinct and not combined_df.empty:
             combined_df = combined_df.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
 
         if combined_df.empty:
-            return "No departures found."
+            return "No departures found.", str_name
+
+        condition = (
+                (combined_df['trip_headsign'] == 'Hlavní nádraží') &
+                (combined_df['route_short_name'].astype(str).isin(['3', '5']))
+        )
+
+        combined_df = combined_df[~condition]
 
         if not distinct:
             combined_df = combined_df.head(n)
@@ -164,5 +159,4 @@ class TramScheduler:
 
 if __name__ == "__main__":
     scheduler = TramScheduler(data_folder='./data')
-    deps, name = scheduler.get_next_departures("Žižkovo", "2026-11-01 18:29:00", n=10, distinct=True)
-    print(deps)
+    deps, name = scheduler.get_next_departures("Zikova", "2026-01-12 00:00:00", n=10, distinct=True)
