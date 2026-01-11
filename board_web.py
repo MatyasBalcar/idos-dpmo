@@ -140,8 +140,7 @@ def calculate_delay_info(input_str):
 
 scheduler = get_scheduler()
 
-st.title(f"{STATION_NAME}")
-
+title_placeholder = st.empty()
 time_placeholder = st.empty()
 list_placeholder = st.empty()
 
@@ -154,12 +153,13 @@ while True:
         unsafe_allow_html=True
     )
 
-    df = scheduler.get_next_departures(
+    df, name = scheduler.get_next_departures(
         STATION_NAME,
         current_time_str,
         n=ROWS_TO_DISPLAY,
         distinct=GROUP_BY_ROUTE
     )
+    title_placeholder.markdown(f"<h1>{name}</h1>", unsafe_allow_html=True)
 
     if isinstance(df, str):
         list_placeholder.error(df)

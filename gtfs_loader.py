@@ -100,6 +100,10 @@ class TramScheduler:
         matching_stops = self.stops[self.stops['stop_name'].str.contains(station_name, case=False, na=False)]
         if matching_stops.empty:
             return f"Error: No station found matching '{station_name}'"
+
+
+        str_name = matching_stops['stop_name'].iloc[0]
+
         target_stop_ids = matching_stops['stop_id'].tolist()
 
         active_services_today = self._get_active_services(query_dt)
@@ -153,10 +157,10 @@ class TramScheduler:
             'trip_headsign': 'Direction'
         })
 
-        return output
+        return output, str_name
 
 
 if __name__ == "__main__":
     scheduler = TramScheduler(data_folder='./data')
-    deps = scheduler.get_next_departures("Zikova", "2026-11-01 18:29:00", n=10, distinct=True)
+    deps, name = scheduler.get_next_departures("Žižkovo", "2026-11-01 18:29:00", n=10, distinct=True)
     print(deps)
