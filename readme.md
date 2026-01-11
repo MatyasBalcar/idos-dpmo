@@ -26,4 +26,7 @@ looks like this
 ```
 where station is a fulltext search of station and number_of_connections is an integer of how many connection you want to display
 
+# Disclaimer
+* This uses publicly available timetables sourced from [here](https://www.dpmo.cz/informace-pro-cestujici/jizdni-rady/jizdni-rady-gtfs/), doesn't include any delays, because it's base purely on timetables, live data isn't availible
+* This also need's internet to run in order to get current time, other than that it could run offline.
 
