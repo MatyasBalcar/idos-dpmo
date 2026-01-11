@@ -217,14 +217,17 @@ while True:
 
             for tram_no, group in grouped:
                 html_buffer += f'<div class="tram-card">'
-                html_buffer += f'<div class="tram-header"><div class="tram-badge">{tram_no}</div><div class="tram-title">Departures</div></div>'
+                html_buffer += (f'<div class="tram-header"><div class="tram-badge">{tram_no}</div><div '
+                                f'class="tram-title">Departures</div></div>')
 
                 for idx, row in group.iterrows():
                     direction = row['Direction']
                     raw_time = row['Time of departure']
                     d_time, d_delay = calculate_delay_info(raw_time)
 
-                    html_buffer += f'<div class="direction-row"><div class="dir-name">{direction}</div><div class="dir-time"><span class="time-main">{d_time}</span><span class="time-delay">{d_delay}</span></div></div>'
+                    html_buffer += (f'<div class="direction-row"><div class="dir-name">{direction}</div><div '
+                                    f'class="dir-time"><span class="time-main">{d_time}</span><span '
+                                    f'class="time-delay">{d_delay}</span></div></div>')
 
                 html_buffer += "</div>"
 
@@ -238,7 +241,12 @@ while True:
                 raw_time = row['Time of departure']
                 d_time, d_delay = calculate_delay_info(raw_time)
 
-                html_buffer += f'<div class="tram-card" style="display:flex; align-items:center; justify-content:space-between;"><div style="display:flex; align-items:center;"><div class="tram-badge" style="width:50px; height:50px; font-size:1.5rem; margin-bottom:0; margin-right:15px;">{tram_no}</div><div class="dir-name">{direction}</div></div><div class="dir-time"><span class="time-main">{d_time}</span><span class="time-delay">{d_delay}</span></div></div>'
+                html_buffer += (f'<div class="tram-card" style="display:flex; align-items:center; '
+                                f'justify-content:space-between;"><div style="display:flex; align-items:center;"><div '
+                                f'class="tram-badge" style="width:50px; height:50px; font-size:1.5rem; '
+                                f'margin-bottom:0; margin-right:15px;">{tram_no}</div><div class="dir-name">'
+                                f'{direction}</div></div><div class="dir-time"><span class="time-main">'
+                                f'{d_time}</span><span class="time-delay">{d_delay}</span></div></div>')
             html_buffer += '</div>'
 
         list_placeholder.markdown(html_buffer, unsafe_allow_html=True)
