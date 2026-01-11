@@ -29,11 +29,44 @@ st.markdown("""
         padding-top: 1rem;
         padding-bottom: 0rem;
     }
-    h1 {
-        text-align: center; color: #ffbd45; margin-bottom: 10px;
+.title-container {
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #444;
+        padding-bottom: 15px;
+    }
+    
+    .station-name {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #ffbd45;
+        font-size: 3rem; /* Bigger size */
+        font-weight: 800;
+        text-transform: uppercase; /* Force uppercase like real signs */
+        letter-spacing: 2px;
+        margin-top: 25px;
+    }
+    
+    .station-icon {
+        font-size: 3rem;
+        margin-right: 15px;
+        vertical-align: middle;
     }
     div[data-testid="stToolbar"] {visibility: hidden;}
     footer {visibility: hidden;}
+
+    /* GRID CONTAINER SETUP */
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* Exact 2 columns */
+        gap: 15px; /* Space between cards */
+    }
+
+    /* Mobile responsiveness: 1 column on small screens */
+    @media (max-width: 800px) {
+        .grid-container {
+            grid-template-columns: 1fr; 
+        }
+    }
 
     /* Card Styling */
     .tram-card {
@@ -41,8 +74,10 @@ st.markdown("""
         border: 1px solid #444;
         border-radius: 12px;
         padding: 15px;
-        margin-bottom: 15px;
+        /* Remove bottom margin because 'gap' handles spacing in grid now */
+        margin-bottom: 0; 
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        height: 100%; /* Ensures cards in the same row are equal height */
     }
 
     .tram-header {
@@ -110,7 +145,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-
 @st.cache_resource
 def get_scheduler():
     return TramScheduler(data_folder='./data')
@@ -149,7 +183,7 @@ while True:
     current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
 
     time_placeholder.markdown(
-        f"<h3 style='text-align: center; font-style: italic; color: gray; margin-bottom: 20px;'>{now.strftime('%H:%M')}</h3>",
+        f"<h3 style='text-align: center; font-style: italic; color: gray; margin-bottom: 20px;'>Currrent time: {now.strftime('%H:%M')}</h3>",
         unsafe_allow_html=True
     )
 
@@ -159,7 +193,14 @@ while True:
         n=ROWS_TO_DISPLAY,
         distinct=GROUP_BY_ROUTE
     )
-    title_placeholder.markdown(f"<h1>{name}</h1>", unsafe_allow_html=True)
+    title_html = f"""
+        <div class="title-container">
+            <div class="station-name">
+                <span class="station-icon"></span> {name}
+            </div>
+        </div>
+        """
+    title_placeholder.markdown(title_html, unsafe_allow_html=True)
 
     if isinstance(df, str):
         list_placeholder.error(df)
@@ -171,6 +212,8 @@ while True:
             df = df.sort_values('sort_key')
 
             grouped = df.groupby('Tram no.', sort=False)
+
+            html_buffer += '<div class="grid-container">'
 
             for tram_no, group in grouped:
                 html_buffer += f'<div class="tram-card">'
@@ -184,6 +227,8 @@ while True:
                     html_buffer += f'<div class="direction-row"><div class="dir-name">{direction}</div><div class="dir-time"><span class="time-main">{d_time}</span><span class="time-delay">{d_delay}</span></div></div>'
 
                 html_buffer += "</div>"
+
+            html_buffer += '</div>'
 
         else:
             html_buffer = '<div class="tram-card-container">'
