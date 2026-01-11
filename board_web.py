@@ -91,7 +91,7 @@ while True:
     else:
         df = df[['Tram no.', 'Time of departure', 'Direction']]
 
-        df['Time of departure'] = df['Time of departure'].apply(lambda x: f"{x[:5]} (+{int(x[10:12])*60 + int(x[13:15])} min)")
+        df['Time of departure'] = df['Time of departure'].apply(lambda x: f"{x[:5]} (+{0 if (int(x[10:12])) == '' else (int(x[10:12])) * 60 + int(x[13:15])} min)")
 
         html_code = df.to_html(index=False, border=0, classes="departure_table")
 
