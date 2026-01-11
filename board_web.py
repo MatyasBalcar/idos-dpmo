@@ -26,10 +26,12 @@ st.markdown("""
     footer {visibility: hidden;}
 
     table {
-        width: 100%;
+        width: 80%;
         border-collapse: collapse;
         border-spacing: 0;
         margin-bottom: 0;
+        margin-left: auto;
+        margin-right: auto; 
     }
     th {
         background-color: #262730;
