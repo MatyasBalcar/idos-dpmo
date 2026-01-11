@@ -1,8 +1,9 @@
 import json
-
-import streamlit as st
 import time
 from datetime import datetime, timedelta, timezone
+
+import streamlit as st
+
 from gtfs_loader import TramScheduler
 
 with open('setup.json', 'r') as file:
@@ -87,8 +88,7 @@ def format_total_minutes(input_str):
     h, m, s = clean_duration.split(':')
     total_minutes = (int(h) * 60) + int(m)
 
-    return f"{short_timestamp} (+{total_minutes} min)"
-
+    return f"{short_timestamp} <span style='color: #4CAF50; font-weight: normal; font-size: 0.8em;'>(+{total_minutes} min)</span>"
 
 
 scheduler = get_scheduler()
@@ -99,12 +99,11 @@ time_placeholder = st.empty()
 table_placeholder = st.empty()
 
 while True:
-    # Get current time in UTC, then convert to GMT+1
     now = datetime.now(timezone.utc).astimezone(GMT_PLUS_1)
     current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
 
     time_placeholder.markdown(
-        f"<h3 style='text-align: center; color: gray; margin-bottom: 20px;'>{now.strftime('%H:%M')}</h3>",
+        f"<h3 style='text-align: center; font-style: italic; color: gray; margin-bottom: 20px;'>{now.strftime('%H:%M')}</h3>",
         unsafe_allow_html=True
     )
 
@@ -116,10 +115,10 @@ while True:
         df = df[['Tram no.', 'Time of departure', 'Direction']]
 
         df['Time of departure'] = df['Time of departure'].apply(
-            lambda
-                x: format_total_minutes(x)
+            lambda x: format_total_minutes(x)
         )
-        html_code = df.to_html(index=False, border=0, classes="departure_table")
+
+        html_code = df.to_html(index=False, border=0, classes="departure_table", escape=False)
 
         table_placeholder.markdown(html_code, unsafe_allow_html=True)
 
