@@ -11,3 +11,15 @@ chmod +x start_board.sh
 ```
 ./start_board.sh
 ```
+
+# Setup.json
+looks like this
+```aiignore
+{
+  "lookup": {
+    "station": "Zikova",
+    "number_of_connections": 5
+  }
+}
+```
+where station is a fulltext search of station and number_of_connections is an integer of how many connection you want to diasplay
