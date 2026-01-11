@@ -1,7 +1,9 @@
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 import pandas as pd
+
+GMT_PLUS_1 = timezone(timedelta(hours=1))
 
 
 class TramScheduler:
@@ -63,6 +65,7 @@ class TramScheduler:
             departures = departures.head(limit)
 
         result = departures.merge(valid_trips, on='trip_id', how='left')
+        result["departure_time"] = result["departure_time"].apply(lambda x: f"{x} ( {datetime.strptime(datetime.strptime(x, '%H:%M:%S').strftime('%H:%M'), '%H:%M') - datetime.strptime(datetime.now(timezone.utc).astimezone(GMT_PLUS_1).strftime('%H:%M'), '%H:%M')} )")
         return result
 
     @lru_cache(maxsize=128)
@@ -120,9 +123,9 @@ if __name__ == "__main__":
         date = sys.argv[2]
         number_of_connection = int(sys.argv[3])
     else:
-        station = input("Station name: ")
-        date = input("Date (YYYY-MM-DD HH:MM:SS): ")
-        number_of_connection = int(input("Number of connections: "))
+        station = "Zikova"
+        date = "2026-11-01 08:00:00"
+        number_of_connection = 5
 
     deps = scheduler.get_next_departures(station, date, n=number_of_connection)
     print(deps)
