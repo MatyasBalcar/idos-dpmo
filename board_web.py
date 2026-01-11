@@ -67,6 +67,30 @@ def get_scheduler():
     return TramScheduler(data_folder='./data')
 
 
+def format_total_minutes(input_str):
+    # Input: "04:00:00 (01:30:00)"
+
+    try:
+        main_part, duration_part = input_str.split(' (')
+    except ValueError:
+        return input_str
+
+        # 1. Get Timestamp (HH:MM)
+    short_timestamp = main_part[:5]
+
+    # 2. Get Duration components
+    clean_duration = duration_part.replace(')', '')
+    h, m, s = clean_duration.split(':')
+
+    # 3. CONVERT EVERYTHING TO MINUTES
+    # (Hours * 60) + Minutes
+    total_minutes = (int(h) * 60) + int(m)
+
+    # 4. Return exact format: HH:MM + X minutes
+    return f"{short_timestamp} (+{total_minutes} min)"
+
+
+
 scheduler = get_scheduler()
 
 st.title(f"{STATION_NAME}")
@@ -93,7 +117,7 @@ while True:
 
         df['Time of departure'] = df['Time of departure'].apply(
             lambda
-                x: f"{x[:5]} (+{(0 if x[10:12].strip() == '' else int(x[10:12]) * 60) + (int(x[13:15]) if x[13:15].strip() else 0)} min)"
+                x: format_total_minutes(x)
         )
         html_code = df.to_html(index=False, border=0, classes="departure_table")
 
