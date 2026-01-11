@@ -75,18 +75,12 @@ def format_total_minutes(input_str):
     except ValueError:
         return input_str
 
-        # 1. Get Timestamp (HH:MM)
     short_timestamp = main_part[:5]
 
-    # 2. Get Duration components
     clean_duration = duration_part.replace(')', '')
     h, m, s = clean_duration.split(':')
-
-    # 3. CONVERT EVERYTHING TO MINUTES
-    # (Hours * 60) + Minutes
     total_minutes = (int(h) * 60) + int(m)
 
-    # 4. Return exact format: HH:MM + X minutes
     return f"{short_timestamp} (+{total_minutes} min)"
 
 
