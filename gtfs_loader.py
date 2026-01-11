@@ -48,6 +48,13 @@ class TramScheduler:
 
     def _fetch_departures(self, stop_ids, service_ids, start_time_str, limit=None):
         valid_trips = self.trips_enriched[self.trips_enriched['service_id'].isin(service_ids)]
+
+        # temp solution for 3 and 5 exclude depo run
+        # mask = ~(
+        #          (valid_trips['trip_headsign'] == 'Hlavní nádraží'))
+
+        # -----------------------------------------------------------------
+
         valid_trip_ids = valid_trips['trip_id']
 
         departures = self.stop_times[
@@ -65,11 +72,24 @@ class TramScheduler:
             departures = departures.head(limit)
 
         result = departures.merge(valid_trips, on='trip_id', how='left')
-        result["departure_time"] = result["departure_time"].apply(lambda x: f"{x} ( {datetime.strptime(datetime.strptime(x, '%H:%M:%S').strftime('%H:%M'), '%H:%M') - datetime.strptime(datetime.now(timezone.utc).astimezone(GMT_PLUS_1).strftime('%H:%M'), '%H:%M')} )")
+
+        current_time_obj = datetime.now(timezone.utc).astimezone(GMT_PLUS_1)
+
+        def format_time_with_delta(dep_time_str):
+            try:
+                dep_dt_base = datetime.strptime(dep_time_str, '%H:%M:%S')
+                dep_hm = datetime.strptime(dep_dt_base.strftime('%H:%M'), '%H:%M')
+                now_hm = datetime.strptime(current_time_obj.strftime('%H:%M'), '%H:%M')
+                delta = dep_hm - now_hm
+                return f"{dep_time_str} ( {str(delta)} )"
+            except Exception:
+                return dep_time_str
+
+        result["departure_time"] = result["departure_time"].apply(format_time_with_delta)
         return result
 
     @lru_cache(maxsize=128)
-    def get_next_departures(self, station_name, query_datetime_str, n=5):
+    def get_next_departures(self, station_name, query_datetime_str, n=5, distinct=False):
         try:
             query_dt = datetime.strptime(query_datetime_str, '%Y-%m-%d %H:%M:%S')
         except ValueError:
@@ -84,9 +104,23 @@ class TramScheduler:
 
         active_services_today = self._get_active_services(query_dt)
 
-        df_today = self._fetch_departures(target_stop_ids, active_services_today, query_time_str, limit=n)
+        fetch_limit = None if distinct else n
 
-        results_needed = n - len(df_today)
+        df_today = self._fetch_departures(target_stop_ids, active_services_today, query_time_str, limit=fetch_limit)
+
+        if distinct and not df_today.empty:
+            df_today = df_today.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
+
+        # TEMP solution
+        condition = (
+                (df_today['trip_headsign'] == 'Hlavní nádraží') &
+                (df_today['route_short_name'].astype(str).isin(['3', '5']))
+        )
+
+        df_today = df_today[~condition]
+
+        results_collected = len(df_today)
+        results_needed = n - results_collected
 
         df_tomorrow = pd.DataFrame()
 
@@ -95,14 +129,21 @@ class TramScheduler:
             active_services_tomorrow = self._get_active_services(tomorrow_dt)
 
             df_tomorrow = self._fetch_departures(target_stop_ids, active_services_tomorrow, "00:00:00",
-                                                 limit=results_needed)
+                                                 limit=None if distinct else results_needed)
+
+            if distinct and not df_tomorrow.empty:
+                df_tomorrow = df_tomorrow.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
 
         combined_df = pd.concat([df_today, df_tomorrow], ignore_index=True)
+
+        if distinct and not combined_df.empty:
+            combined_df = combined_df.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
 
         if combined_df.empty:
             return "No departures found."
 
-        combined_df = combined_df.head(n)
+        if not distinct:
+            combined_df = combined_df.head(n)
 
         output = combined_df[['departure_time', 'route_short_name', 'trip_headsign']]
 
@@ -117,15 +158,5 @@ class TramScheduler:
 
 if __name__ == "__main__":
     scheduler = TramScheduler(data_folder='./data')
-
-    if len(sys.argv) == 4:
-        station = sys.argv[1]
-        date = sys.argv[2]
-        number_of_connection = int(sys.argv[3])
-    else:
-        station = "Zikova"
-        date = "2026-11-01 08:00:00"
-        number_of_connection = 5
-
-    deps = scheduler.get_next_departures(station, date, n=number_of_connection)
+    deps = scheduler.get_next_departures("Zikova", "2026-11-01 18:29:00", n=10, distinct=True)
     print(deps)

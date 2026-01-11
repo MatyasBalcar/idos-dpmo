@@ -20,7 +20,8 @@ looks like this
 {
   "lookup": {
     "station": "Zikova",
-    "number_of_connections": 5
+    "number_of_connections": 5,
+    "group_by_routes": 0
   }
 }
 ```
