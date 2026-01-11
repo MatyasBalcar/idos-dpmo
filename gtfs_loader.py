@@ -116,6 +116,8 @@ class TramScheduler:
             df_today = df_today.drop_duplicates(subset=['route_short_name', 'trip_headsign'], keep='first')
 
         # TEMP solution
+        if df_today.empty:
+            return f"Error: No departures found for '{station_name}'", str_name
         condition = (
                 (df_today['trip_headsign'] == 'Hlavní nádraží') &
                 (df_today['route_short_name'].astype(str).isin(['3', '5']))
