@@ -1,11 +1,17 @@
+import json
+
 import streamlit as st
 import time
 from datetime import datetime, timedelta, timezone
 from gtfs_loader import TramScheduler
 
-STATION_NAME = "Zikova"
+with open('setup.json', 'r') as file:
+    DATA = json.load(file)
+    DATA = DATA["lookup"]
+
+STATION_NAME = DATA['station']
 REFRESH_RATE = 60
-ROWS_TO_DISPLAY = 5
+ROWS_TO_DISPLAY = DATA['number_of_connections']
 
 GMT_PLUS_1 = timezone(timedelta(hours=1))
 
