@@ -247,7 +247,7 @@ while True:
         temp, w_code = get_fast_weather()
 
     time_placeholder.markdown(
-        f"<h3 style='text-align: center; font-style: italic; color: gray; margin-bottom: 20px;'>Currrent time: {now.strftime('%H:%M')}</h3>",
+        f"<h3 style='text-align: center; font-style: italic; color: white; margin-bottom: 20px;'>Currrent time: {now.strftime('%H:%M')}</h3>",
         unsafe_allow_html=True
     )
 
