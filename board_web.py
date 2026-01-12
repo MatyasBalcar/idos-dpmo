@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from gtfs_loader import TramScheduler
+from weather import get_fast_weather
 
 with open('setup.json', 'r') as file:
     DATA = json.load(file)
@@ -19,6 +20,42 @@ raw_group_option = DATA.get('group_by_route', False)
 GROUP_BY_ROUTE = True if (raw_group_option is True or raw_group_option == 1) else False
 
 GMT_PLUS_1 = timezone(timedelta(hours=1))
+
+weather_code_map = {
+    0: "Clear sky ☀️",
+    1: "Mainly clear 🌤️",
+    2: "Partly cloudy ⛅ ",
+    3: "Overcast ☁️",
+    45: "Fog 🌫️",
+    48: "Depositing rime fog 🌫️",
+    51: "Drizzle: Light 🌧️",
+    53: "Drizzle: Moderate 🌧️",
+    55: "Drizzle: Dense 🌧️",
+    56: "Freezing Drizzle: Light 🌨️",
+    57: "Freezing Drizzle: Dense 🌨️",
+    61: "Rain: Slight 🌧️",
+    63: "Rain: Moderate 🌧️",
+    65: "Rain: Heavy 🌧️",
+    66: "Freezing Rain: Light 🌨️",
+    67: "Freezing Rain: Heavy 🌨️",
+    71: "Snow fall: Slight ❄️",
+    73: "Snow fall: Moderate ❄️",
+    75: "Snow fall: Heavy ❄️",
+    77: "Snow grains ❄️",
+    80: "Rain showers: Slight 🌦️",
+    81: "Rain showers: Moderate 🌦️",
+    82: "Rain showers: Violent 🌦️",
+    85: "Snow showers: Slight 🌨️",
+    86: "Snow showers: Heavy 🌨️",
+    95: "Thunderstorm: Slight or moderate ⛈️",
+    96: "Thunderstorm with slight hail ⛈️",
+    99: "Thunderstorm with heavy hai ⛈️l"
+}
+
+
+def get_weather_desc(code):
+    return weather_code_map.get(code, "Unknown weather status")
+
 
 st.set_page_config(page_title=f"Departures - {STATION_NAME}", layout="wide")
 
@@ -174,18 +211,54 @@ def calculate_delay_info(input_str):
 
 scheduler = get_scheduler()
 
-title_placeholder = st.empty()
-time_placeholder = st.empty()
+col_left, col_mid, col_right = st.columns([2, 6, 2])
+
+with col_left:
+    st.write("")
+
+with col_mid:
+    title_placeholder = st.empty()
+    time_placeholder = st.empty()
+
+with col_right:
+    weather_placeholder = st.empty()
+
 list_placeholder = st.empty()
 
+temp, w_code = None, None
+weather_timestamp_stamp = datetime.now()
+
+
+def isInvalidStamp(stamp):
+    now_stamp = datetime.now()
+    diff_minutes = (now_stamp - stamp).total_seconds() / 60
+    return diff_minutes > 30
+
+
+# TODO refresh exactly on the minute?
 while True:
     now = datetime.now(timezone.utc).astimezone(GMT_PLUS_1)
     current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Checks weather once every 30 minutes
+    if (temp is None and w_code is None) or isInvalidStamp(weather_timestamp_stamp):
+
+        weather_timestamp_stamp = datetime.now()
+        temp, w_code = get_fast_weather()
 
     time_placeholder.markdown(
         f"<h3 style='text-align: center; font-style: italic; color: gray; margin-bottom: 20px;'>Currrent time: {now.strftime('%H:%M')}</h3>",
         unsafe_allow_html=True
     )
+
+    weather_html = f"""
+        <div style="text-align: right; padding-right: 10px; margin-top: 25px;">
+            <div style="color: gray; font-size: 1.1rem; font-style: italic;">Current temperature: {temp} °C</div>
+            <div style="color: white; font-size: 1.1rem; font-style: italic;">{get_weather_desc(w_code)} </div>
+        </div>
+        """
+
+    weather_placeholder.markdown(weather_html, unsafe_allow_html=True)
 
     df, name = scheduler.get_next_departures(
         STATION_NAME,

@@ -3,6 +3,7 @@
     "station": "Zikova",
     "number_of_connections": 5,
     "group_by_route": 1,
-    "location": "Olomouc"
+    "pos_lat":  49.5,
+    "pos_lon":  17.25
   }
 }
