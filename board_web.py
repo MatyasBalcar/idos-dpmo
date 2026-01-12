@@ -242,7 +242,6 @@ while True:
 
     # Checks weather once every 30 minutes
     if (temp is None and w_code is None) or isInvalidStamp(weather_timestamp_stamp):
-
         weather_timestamp_stamp = datetime.now()
         temp, w_code = get_fast_weather()
 
