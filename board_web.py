@@ -1,13 +1,10 @@
 import json
 import time
 from datetime import datetime, timedelta, timezone
-from functools import lru_cache
 
 import pandas as pd
 import streamlit as st
-import asyncio
 
-from weather import getWeather
 from gtfs_loader import TramScheduler
 
 with open('setup.json', 'r') as file:
@@ -146,6 +143,7 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
+
 
 @st.cache_resource
 def get_scheduler():
