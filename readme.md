@@ -21,11 +21,16 @@ looks like this
   "lookup": {
     "station": "Zikova",
     "number_of_connections": 5,
-    "group_by_routes": 0
+    "group_by_route": 1,
+    "pos_lat":  49.5,
+    "pos_lon":  17.25
   }
 }
 ```
-where station is a fulltext search of station and number_of_connections is an integer of how many connection you want to display
+* where station is a fulltext search of station 
+* number_of_connections is an integer of how many connection you want to display
+* group by routes is 0 or 1
+* lat and lon are cords for weather
 
 # Disclaimer
 * This uses publicly available timetables sourced from [here](https://www.dpmo.cz/informace-pro-cestujici/jizdni-rady/jizdni-rady-gtfs/), doesn't include any delays, because it's base purely on timetables, live data isn't availible
