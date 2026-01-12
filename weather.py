@@ -16,5 +16,5 @@ def get_fast_weather(lat=DATA['pos_lat'], lon=DATA['pos_lon']):
         data = response.json()
 
         return data['current_weather']['temperature'], data['current_weather']['weathercode']
-    except :
+    except:
         return "API error", None
