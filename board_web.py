@@ -21,7 +21,7 @@ GROUP_BY_ROUTE = True if (raw_group_option is True or raw_group_option == 1) els
 
 GMT_PLUS_1 = timezone(timedelta(hours=1))
 
-weather_code_map = {
+WEATHER_CODE_MAP = {
     0: "Clear sky ☀️",
     1: "Mainly clear 🌤️",
     2: "Partly cloudy ⛅ ",
@@ -49,12 +49,12 @@ weather_code_map = {
     86: "Snow showers: Heavy 🌨️",
     95: "Thunderstorm: Slight or moderate ⛈️",
     96: "Thunderstorm with slight hail ⛈️",
-    99: "Thunderstorm with heavy hai ⛈️l"
+    99: "Thunderstorm with heavy hail ⛈️"
 }
 
 
 def get_weather_desc(code):
-    return weather_code_map.get(code, "Unknown weather status")
+    return WEATHER_CODE_MAP.get(code, "Unknown weather status")
 
 
 st.set_page_config(page_title=f"Departures - {STATION_NAME}", layout="wide")
@@ -246,7 +246,7 @@ while True:
         temp, w_code = get_fast_weather()
 
     time_placeholder.markdown(
-        f"<h3 style='text-align: center; font-style: italic; color: gray; margin-bottom: 20px;'>Currrent time: {now.strftime('%H:%M')}</h3>",
+        f"<h3 style='text-align: center; font-style: italic; color: white; margin-bottom: 20px;'>Currrent time: {now.strftime('%H:%M')}</h3>",
         unsafe_allow_html=True
     )
 
