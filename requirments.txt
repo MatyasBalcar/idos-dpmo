@@ -1,3 +1,5 @@
 streamlit
 pandas
 watchdog
+python-weather
+asyncio

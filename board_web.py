@@ -1,12 +1,15 @@
 import json
 import time
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
+
 import pandas as pd
 import streamlit as st
+import asyncio
 
+from weather import getWeather
 from gtfs_loader import TramScheduler
 
-# --- Setup ---
 with open('setup.json', 'r') as file:
     DATA = json.load(file)
     DATA = DATA["lookup"]
@@ -22,7 +25,6 @@ GMT_PLUS_1 = timezone(timedelta(hours=1))
 
 st.set_page_config(page_title=f"Departures - {STATION_NAME}", layout="wide")
 
-# --- CSS Styles ---
 st.markdown("""
     <style>
     .block-container {
@@ -196,7 +198,7 @@ while True:
     title_html = f"""
         <div class="title-container">
             <div class="station-name">
-                <span class="station-icon"></span> {name}
+                {name}
             </div>
         </div>
         """
